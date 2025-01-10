@@ -1,12 +1,24 @@
 import datasets
 from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from smolagents import HfApiModel, CodeAgent
+from smolagents import (
+    HfApiModel,
+    CodeAgent,
+    ToolCallingAgent,
+    ManagedAgent,
+    DuckDuckGoSearchTool,
+    VisitWebpageTool,
+)
 
 from retriever import RetrieverTool
 
+
 def main():
     print("Hello from agentic-rag!")
+
+    # Model
+    model_id = "Qwen/Qwen2.5-Coder-32B-Instruct"
+    model = HfApiModel(model_id)
 
     # Load the knowledge-base
     # TODO: Uses transformers library of markdown files, can be changed with other scraped docs
@@ -32,16 +44,32 @@ def main():
     docs_processed = text_splitter.split_documents(source_docs)
     retriever_tool = RetrieverTool(docs_processed)
 
-    # Initialize the Agent
-    agent = CodeAgent(
+    # Initialize web agent, and wrap it in a ManagedAgent
+    web_agent = ToolCallingAgent(
+        tools=[DuckDuckGoSearchTool(), VisitWebpageTool()],
+        model=model,
+        max_steps=5
+    )
+    managed_agent = ManagedAgent(
+        agent=web_agent,
+        name="search",
+        description="Runs web searches for you. Give it your query as an argument."
+    )
+
+    # Initialize the main Manager Agent
+    manager_agent = CodeAgent(
         tools=[retriever_tool],
-        model=HfApiModel(),
+        model=model,
+        managed_agents=[managed_agent],
         max_steps=4,
         verbose=True,
+        additional_authorized_imports=["time", "numpy", "pandas"]
     )
 
     # Run sample
-    agent_output = agent.run("For a transformers model training, which is slower, the forward or the backward pass?")
+    agent_output = manager_agent.run(
+        "How much VRAM does it need to train a Llama-3.3-70B model from scratch?"
+    )
 
     print("Final output:")
     print(agent_output)
