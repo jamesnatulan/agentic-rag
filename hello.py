@@ -4,8 +4,6 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from smolagents import (
     HfApiModel,
     CodeAgent,
-    ToolCallingAgent,
-    ManagedAgent,
     DuckDuckGoSearchTool,
     VisitWebpageTool,
 )
@@ -44,31 +42,25 @@ def main():
     docs_processed = text_splitter.split_documents(source_docs)
     retriever_tool = RetrieverTool(docs_processed)
 
-    # Initialize web agent, and wrap it in a ManagedAgent
-    web_agent = ToolCallingAgent(
-        tools=[DuckDuckGoSearchTool(), VisitWebpageTool()],
+    # Initialize the Agent
+    agent = CodeAgent(
+        tools=[retriever_tool, DuckDuckGoSearchTool(), VisitWebpageTool()],
         model=model,
-        max_steps=5
-    )
-    managed_agent = ManagedAgent(
-        agent=web_agent,
-        name="search",
-        description="Runs web searches for you. Give it your query as an argument."
-    )
-
-    # Initialize the main Manager Agent
-    manager_agent = CodeAgent(
-        tools=[retriever_tool],
-        model=model,
-        managed_agents=[managed_agent],
-        max_steps=4,
+        max_steps=5,
         verbose=True,
-        additional_authorized_imports=["time", "numpy", "pandas"]
+        additional_authorized_imports=["time", "numpy", "pandas"],
     )
 
     # Run sample
-    agent_output = manager_agent.run(
-        "How much VRAM does it need to train a Llama-3.3-70B model from scratch?"
+    question = "How do you train a Transformer model?"
+    prompt_template = """
+    {question}
+    Return the final answer in a paragraph format, containing a brief summary of
+    how you came up with the answer. Please provide a source for any information used.
+    """
+
+    agent_output = agent.run(
+        prompt_template.format(question=question)
     )
 
     print("Final output:")
