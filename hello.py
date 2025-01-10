@@ -46,24 +46,28 @@ def main():
     agent = CodeAgent(
         tools=[retriever_tool, DuckDuckGoSearchTool(), VisitWebpageTool()],
         model=model,
-        max_steps=5,
+        max_steps=10,
         verbose=True,
         additional_authorized_imports=["time", "numpy", "pandas"],
     )
 
     # Run sample
-    question = "How do you train a Transformer model?"
     prompt_template = """
     {question}
     Return the final answer in a paragraph format, containing a brief summary of
     how you came up with the answer. Please provide a source for any information used.
     """
 
+    question = input("Ask me anything!: ")
+
     agent_output = agent.run(
         prompt_template.format(question=question)
     )
 
     print("Final output:")
+    print("==================================")
+    print(f"Question: {question}")
+    print("Answer: ")
     print(agent_output)
 
 
