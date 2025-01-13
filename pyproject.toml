@@ -5,12 +5,16 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "chroma>=0.2.0",
     "datasets>=3.2.0",
     "huggingface-hub[cli]>=0.27.1",
+    "langchain-chroma>=0.2.0",
     "langchain>=0.3.14",
     "langchain-community>=0.3.14",
     "pandas>=2.2.3",
     "rank-bm25>=0.2.2",
     "sentence-transformers>=3.3.1",
     "smolagents>=1.1.0",
+    "langchain-openai>=0.3.0",
+    "langchain-huggingface>=0.1.2",
 ]
