@@ -82,7 +82,7 @@ def init_rag_agent(model: Model):
     retriever_agent = CodeAgent(
         tools=[retriever_tool],
         model=model,
-        max_steps=7,
+        max_steps=4,
         # verbose=False,
     )
 

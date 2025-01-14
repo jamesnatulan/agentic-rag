@@ -11,6 +11,7 @@ from src.web_search import init_web_search_agent
 import streamlit as st
 
 from src.common import load_model
+from src.prompts import MAIN_AGENT_PROMPT
 
 
 @st.cache_resource
@@ -33,15 +34,16 @@ def init_agentic_rag(provider=None, model_id=None, api_key=None, api_base=None):
     rag_agent = ManagedAgent(
         rag_agent,
         name="retriever_agent",
-        description="""Use this agent first to check and retrieve information from the knowledge base. If you have
-        missing information, you can use the web search agent to fill in the gaps.""",
+        description="""Uses semantic search to retrieve the parts of the documents stored in the vectorstore that could be most relevant to answer your query.
+        If you have missing information, you can use the web search agent to fill in the gaps.
+        """,
     )
 
     # Initialize web search Agent
     web_search_agent = init_web_search_agent(model)
     web_search_agent = ManagedAgent(
         web_search_agent,
-        name="web_search",
+        name="web_search_agent",
         description="""Runs web searches only to append, verify, or fill in missing information from
         a generated response from the retriever agent. Only run the whole input query to this agent if the
         retriever agent does not return the desired information.
@@ -52,6 +54,7 @@ def init_agentic_rag(provider=None, model_id=None, api_key=None, api_base=None):
     manager_agent = CodeAgent(
         tools=[],
         model=model,
+        system_prompt=MAIN_AGENT_PROMPT,
         managed_agents=[rag_agent, web_search_agent],
         max_steps=2,
         additional_authorized_imports=["time", "numpy", "pandas"],
