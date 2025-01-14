@@ -1,12 +1,23 @@
 from smolagents import CodeAgent, ManagedAgent
 
-from src.rag import init_rag_agent
+from src.rag import (
+    init_rag_agent,
+    init_chroma_vector_store,
+    load_pdf,
+    load_dataset,
+)
 from src.web_search import init_web_search_agent
 
 import streamlit as st
 
 from src.common import load_model
 
+
+@st.cache_resource
+def st_init_chroma_vector_store():
+    # Load the vector store
+    vector_store, splitter = init_chroma_vector_store()
+    return vector_store, splitter
 
 @st.cache_resource
 def init_agentic_rag(provider=None, model_id=None, api_key=None, api_base=None):
@@ -32,7 +43,9 @@ def init_agentic_rag(provider=None, model_id=None, api_key=None, api_base=None):
         web_search_agent,
         name="web_search",
         description="""Runs web searches only to append, verify, or fill in missing information from
-        a generated response from the retriever agent""",
+        a generated response from the retriever agent. Only run the whole input query to this agent if the
+        retriever agent does not return the desired information.
+        """,
     )
 
     # Create the manager agent
@@ -40,7 +53,7 @@ def init_agentic_rag(provider=None, model_id=None, api_key=None, api_base=None):
         tools=[],
         model=model,
         managed_agents=[rag_agent, web_search_agent],
-        max_steps=5,
+        max_steps=2,
         additional_authorized_imports=["time", "numpy", "pandas"],
         verbose=False,
     )
@@ -51,8 +64,12 @@ def init_agentic_rag(provider=None, model_id=None, api_key=None, api_base=None):
 def main():
     # Start streamlit app
     st.title("Multi Agent RAG Demo")
+    
+    # Initialize the vector store
+    vector_store, splitter = st_init_chroma_vector_store()
 
     # Initialize the Agentic-RAG agent
+    st.sidebar.header("LLM Model Configuration")
     provider = st.sidebar.selectbox(
         "Select model provider",
         ["huggingface", "ollama", "openai"],
@@ -60,34 +77,68 @@ def main():
         help="Choose the model provider you want to use. HuggingFace uses the HuggingFace API, while ollama uses local models through Ollama",
     )
 
-    st.divider()
+    st.sidebar.divider()
     if provider == "ollama":
         model_id = st.sidebar.text_input(
             "Enter model ID",
             "qwen2.5-coder:7b",
             help="The model name listed in ollama. Run 'ollama list' to see available models.",
         )
-        api_base = st.sidebar.text_input("Enter API base", "http://localhost:11434", help="The base URL of the ollama API.")
+        api_base = st.sidebar.text_input(
+            "Enter API base",
+            "http://localhost:11434",
+            help="The base URL of the ollama API.",
+        )
         api_key = None
     elif provider == "huggingface":
         model_id = st.sidebar.text_input(
-            "Enter model ID", "Qwen/Qwen2.5-Coder-7B-Instruct", help="The model ID from HuggingFace."
+            "Enter model ID",
+            "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+            help="The model ID from HuggingFace.",
         )
         api_base = None
-        api_key = st.sidebar.text_input("Enter token", "", help="Your HuggingFace token.")
+        api_key = st.sidebar.text_input(
+            "Enter token", "", help="Your HuggingFace token."
+        )
     elif provider == "openai":
         model_id = st.sidebar.text_input(
             "Enter model ID", "gpt-4", help="The model to use from OpenAI."
         )
         api_base = "https://api.openai.com/v1"
-        api_key = st.sidebar.text_input("Enter API key", "", help="Your OpenAI API key.")
+        api_key = st.sidebar.text_input(
+            "Enter API key", "", help="Your OpenAI API key."
+        )
 
     agentic_rag = init_agentic_rag(provider, model_id, api_key, api_base)
-    st.divider()
+    st.sidebar.divider()
 
     # Documents here
-    
+    st.sidebar.header("Documents")
+    uploaded_files = st.sidebar.file_uploader("Upload PDF", type=["pdf"], accept_multiple_files=True)
+    if len(uploaded_files) > 0:
+        docs = load_pdf(uploaded_files, splitter)
+        progress_text = "Loading PDF into vector store..."
+        progress_bar = st.sidebar.progress(0, text=progress_text)
 
+        for i, doc in enumerate(docs):
+            vector_store.add_documents([doc])
+            progress_bar.progress(i / len(docs))
+        progress_bar.empty()
+        st.sidebar.success("PDFs loaded successfully.")
+
+    dataset = st.sidebar.text_input("Enter dataset name", "jamesnatulan/transformers-docs")
+    if st.sidebar.button("Load dataset"):
+        docs = load_dataset(dataset, splitter)
+        progress_text = "Loading dataset into vector store..."
+        progress_bar = st.sidebar.progress(0, text=progress_text)
+
+        for i, doc in enumerate(docs):
+            vector_store.add_documents([doc])
+            progress_bar.progress(i / len(docs), text=progress_text)
+        progress_bar.empty()
+        st.sidebar.success("Dataset loaded successfully.")
+    
+        
 
     # Initialize chat history
     if "messages" not in st.session_state:

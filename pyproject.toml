@@ -16,4 +16,7 @@ dependencies = [
     "smolagents>=1.1.0",
     "langchain-huggingface>=0.1.2",
     "streamlit>=1.41.1",
+    "pypdf>=5.1.0",
+    "beautifulsoup4>=4.12.3",
+    "validators>=0.34.0",
 ]

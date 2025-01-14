@@ -1,10 +1,14 @@
 import os
-
 from smolagents import CodeAgent, Model
 
 from smolagents import Tool
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
+import datasets
+from langchain.docstore.document import Document
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import PyPDFLoader
+
 
 def init_chroma_vector_store():
     # Create persist directory at project root
@@ -25,12 +29,21 @@ def init_chroma_vector_store():
         persist_directory=".db",
     )
 
-    return vector_store
+    # Text Splitter
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1000,
+        chunk_overlap=200,
+        add_start_index=True,
+        strip_whitespace=True,
+        separators=["\n\n", "\n", ".", " ", ""],
+    )
+
+    return vector_store, text_splitter
 
 
 class RetrieverTool(Tool):
     name = "retriever"
-    description = "Uses semantic search to retrieve the parts of transformers documentation that could be most relevant to answer your query."
+    description = "Uses semantic search to retrieve the parts of the documents stored in the vectorstore that could be most relevant to answer your query."
     inputs = {
         "query": {
             "type": "string",
@@ -60,22 +73,45 @@ class RetrieverTool(Tool):
         )
 
 
-def init_rag_agent(
-    model: Model
-):
+def init_rag_agent(model: Model):
     # Initialize the vector store
-    vector_store = init_chroma_vector_store()
+    vector_store, _ = init_chroma_vector_store()
 
     # Initialize the retriever tool and Agent
     retriever_tool = RetrieverTool(vector_store)
     retriever_agent = CodeAgent(
         tools=[retriever_tool],
         model=model,
-        max_steps=4,
+        max_steps=7,
         # verbose=False,
     )
 
     return retriever_agent
+
+
+def load_pdf(files, text_splitter):
+    pages = []
+    for file in files:
+        # Load PDF as a document
+        loader = PyPDFLoader(file)
+        for page in loader.lazy_load():
+            pages.append(page)
+
+    # load into Documents
+    docs_processed = text_splitter.split_documents(pages)
+
+    return docs_processed
+
+
+def load_dataset(dataset, text_splitter, content_field="text"):
+    # Load the dataset
+    knowledge_base = datasets.load_dataset(dataset, split="train")
+
+    # load into Documents
+    source_docs = [Document(page_content=doc[content_field]) for doc in knowledge_base]
+    docs_processed = text_splitter.split_documents(source_docs)
+
+    return docs_processed
 
 
 def main():
