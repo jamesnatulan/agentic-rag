@@ -9,6 +9,8 @@ from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader
 
+from src.common import load_model
+
 
 def init_chroma_vector_store():
     # Create persist directory at project root
@@ -43,7 +45,7 @@ def init_chroma_vector_store():
 
 class RetrieverTool(Tool):
     name = "retriever"
-    description = "Uses semantic search to retrieve the parts of the documents stored in the vectorstore that could be most relevant to answer your query."
+    description = "Uses semantic search to retrieve the parts of the documents stored in a vector database that could be most relevant to answer your query."
     inputs = {
         "query": {
             "type": "string",
@@ -55,9 +57,12 @@ class RetrieverTool(Tool):
     def __init__(self, vector_store: Chroma, **kwargs):
         super().__init__(**kwargs)
         self.retriever = vector_store.as_retriever(
-            search_type="mmr",
-            search_kwargs={"k": 4, "fetch_k": 2, "lambda_mult": 0.5},
+            search_type="similarity",
+            search_kwargs={"k": 10},
         )
+
+    def update_description(self, description: str):
+        self.description = self.description.replace("{documents}", description)
 
     def forward(self, query: str) -> str:
         assert isinstance(query, str), "Your search query must be a string"
@@ -117,9 +122,17 @@ def load_dataset(dataset, text_splitter, content_field="text"):
 def main():
     print("RAG Agent")
 
+    # Initialize model
+    model = load_model(
+        provider="ollama",
+        model_id="qwen2.5-coder:7b",
+        api_key=None,
+        api_base="http://localhost:11434",
+    )
+
     # Initialize the RAG Agent
     print("Initializing the RAG Agent...")
-    retriever_agent = init_rag_agent()
+    retriever_agent = init_rag_agent(model)
 
     query = input("Enter your query: ")
     response = retriever_agent.run(query)
