@@ -1,11 +1,10 @@
 import os
 
-from smolagents import CodeAgent, LiteLLMModel
+from smolagents import CodeAgent, Model
 
 from smolagents import Tool
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
-
 
 def init_chroma_vector_store():
     # Create persist directory at project root
@@ -62,20 +61,8 @@ class RetrieverTool(Tool):
 
 
 def init_rag_agent(
-    model_id: str = None,
-    api_base: str = None,
-    api_key: str = None,
+    model: Model
 ):
-    # Defaults
-    if model_id is None:
-        model_id = "ollama/qwen2.5-coder:1.5b"
-
-    if api_base is None:
-        api_base = "http://localhost:11434"
-
-    # Model
-    model = LiteLLMModel(model_id, api_base=api_base, api_key=api_key)
-
     # Initialize the vector store
     vector_store = init_chroma_vector_store()
 
@@ -88,7 +75,7 @@ def init_rag_agent(
         # verbose=False,
     )
 
-    return vector_store, retriever_agent
+    return retriever_agent
 
 
 def main():
@@ -96,7 +83,7 @@ def main():
 
     # Initialize the RAG Agent
     print("Initializing the RAG Agent...")
-    vector_store, retriever_agent = init_rag_agent()
+    retriever_agent = init_rag_agent()
 
     query = input("Enter your query: ")
     response = retriever_agent.run(query)

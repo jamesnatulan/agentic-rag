@@ -2,16 +2,10 @@ from smolagents import (
     CodeAgent,
     DuckDuckGoSearchTool,
     VisitWebpageTool,
-    LiteLLMModel
+    Model,
 )
 
-def init_web_search_agent():
-    # Model
-    model = LiteLLMModel(
-        "ollama/qwen2.5-coder:1.5b",
-        api_base="http://localhost:11434"
-    )
-
+def init_web_search_agent(model: Model):
     # Create web search Agent
     web_search_agent = CodeAgent(
         tools=[DuckDuckGoSearchTool(), VisitWebpageTool()],

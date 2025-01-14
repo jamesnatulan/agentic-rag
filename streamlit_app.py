@@ -1,14 +1,24 @@
-from smolagents import CodeAgent, ManagedAgent, LiteLLMModel
+from smolagents import CodeAgent, ManagedAgent
 
-from rag import init_rag_agent
-from web_search import init_web_search_agent
+from src.rag import init_rag_agent
+from src.web_search import init_web_search_agent
 
 import streamlit as st
 
+from src.common import load_model
+
+
 @st.cache_resource
-def init_agentic_rag():
+def init_agentic_rag(provider=None, model_id=None, api_key=None, api_base=None):
+    # Load the model
+    model = load_model(
+        provider=provider,
+        model_id=model_id,
+        api_key=api_key,
+        api_base=api_base,
+    )
     # Initialize retriever Agent
-    _, rag_agent = init_rag_agent()
+    rag_agent = init_rag_agent(model)
     rag_agent = ManagedAgent(
         rag_agent,
         name="retriever_agent",
@@ -17,19 +27,12 @@ def init_agentic_rag():
     )
 
     # Initialize web search Agent
-    web_search_agent = init_web_search_agent()
+    web_search_agent = init_web_search_agent(model)
     web_search_agent = ManagedAgent(
         web_search_agent,
         name="web_search",
         description="""Runs web searches only to append, verify, or fill in missing information from
         a generated response from the retriever agent""",
-    )
-
-    # Initialize the model
-    model = LiteLLMModel(
-        model_id="ollama/qwen2.5-coder:1.5b",
-        api_base="http://localhost:11434",
-        api_key=None,
     )
 
     # Create the manager agent
@@ -46,12 +49,45 @@ def init_agentic_rag():
 
 
 def main():
-    print("Hello from agentic-rag!")
-
-    agentic_rag = init_agentic_rag()
-
     # Start streamlit app
-    st.title("Agentic-RAG Demo")
+    st.title("Multi Agent RAG Demo")
+
+    # Initialize the Agentic-RAG agent
+    provider = st.sidebar.selectbox(
+        "Select model provider",
+        ["huggingface", "ollama", "openai"],
+        index=0,
+        help="Choose the model provider you want to use. HuggingFace uses the HuggingFace API, while ollama uses local models through Ollama",
+    )
+
+    st.divider()
+    if provider == "ollama":
+        model_id = st.sidebar.text_input(
+            "Enter model ID",
+            "qwen2.5-coder:7b",
+            help="The model name listed in ollama. Run 'ollama list' to see available models.",
+        )
+        api_base = st.sidebar.text_input("Enter API base", "http://localhost:11434", help="The base URL of the ollama API.")
+        api_key = None
+    elif provider == "huggingface":
+        model_id = st.sidebar.text_input(
+            "Enter model ID", "Qwen/Qwen2.5-Coder-7B-Instruct", help="The model ID from HuggingFace."
+        )
+        api_base = None
+        api_key = st.sidebar.text_input("Enter token", "", help="Your HuggingFace token.")
+    elif provider == "openai":
+        model_id = st.sidebar.text_input(
+            "Enter model ID", "gpt-4", help="The model to use from OpenAI."
+        )
+        api_base = "https://api.openai.com/v1"
+        api_key = st.sidebar.text_input("Enter API key", "", help="Your OpenAI API key.")
+
+    agentic_rag = init_agentic_rag(provider, model_id, api_key, api_base)
+    st.divider()
+
+    # Documents here
+    
+
 
     # Initialize chat history
     if "messages" not in st.session_state:

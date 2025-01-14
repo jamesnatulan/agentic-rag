@@ -5,7 +5,8 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from rag import init_chroma_vector_store
 
 
-def main():
+def load_documents():
+    # Load the knowledge-base
     # Load the knowledge-base
     # TODO: Uses transformers library of markdown files, can be changed with other scraped docs
     knowledge_base = datasets.load_dataset("m-ric/huggingface_doc", split="train")
@@ -33,6 +34,9 @@ def main():
     vector_store = init_chroma_vector_store()
     vector_store.add_documents(docs_processed)
 
+
+def main():
+    load_documents()
 
 if __name__ == "__main__":
     main()
