@@ -20,7 +20,7 @@ def st_init_chroma_vector_store():
 
 
 @st.cache_resource
-def init_agentic_rag(provider=None, model_id=None, api_key=None, api_base=None):
+def init_multiagent_rag(provider=None, model_id=None, api_key=None, api_base=None):
     # Load the model
     model = load_model(
         provider=provider,
@@ -140,7 +140,7 @@ def main():
             "Enter API key", "", help="Your OpenAI API key."
         )
 
-    agentic_rag = init_agentic_rag(provider, model_id, api_key, api_base)
+    agentic_rag = init_multiagent_rag(provider, model_id, api_key, api_base)
     st.sidebar.divider()
 
     # Initialize chat history

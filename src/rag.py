@@ -45,7 +45,7 @@ def init_chroma_vector_store():
 
 class RetrieverTool(Tool):
     name = "retriever"
-    description = "Uses semantic search to retrieve the parts of the documents stored in a vector database that could be most relevant to answer your query."
+    description = "Uses semantic search to retrieve the parts of the transformers documentation stored in a vector database that could be most relevant to answer your query."
     inputs = {
         "query": {
             "type": "string",
@@ -88,7 +88,7 @@ def init_rag_agent(model: Model):
         tools=[retriever_tool],
         model=model,
         max_steps=4,
-        # verbose=False,
+        verbose=True,
     )
 
     return retriever_agent
