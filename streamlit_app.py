@@ -41,10 +41,17 @@ def main():
 
     # Load huggingface dataset as Documents
     dataset = st.sidebar.text_input(
-        "Enter dataset name", "jamesnatulan/transformers-docs"
+        "Enter dataset name",
+        "jamesnatulan/small_wiki_medical_terms",
+        help="THe repo ID of the huggingface dataset you want to use.",
+    )
+    content_field = st.sidebar.text_input(
+        "Enter content field",
+        "page_text",
+        help="The field in the dataset that contains the text.",
     )
     if st.sidebar.button("Load dataset"):
-        docs = load_dataset(dataset, splitter)
+        docs = load_dataset(dataset, splitter, content_field)
         progress_text = "Loading dataset into vector store..."
         progress_bar = st.sidebar.progress(0, text=progress_text)
 
@@ -69,13 +76,12 @@ def main():
         progress_bar.empty()
         st.sidebar.success("PDFs loaded successfully.")
 
-
     # Initialize the Agentic-RAG agent
     st.sidebar.header("LLM Model Configuration")
     provider = st.sidebar.selectbox(
         "Select model provider",
-        ["ollama", "huggingface" , "openai"],
-        index=0,
+        ["ollama", "huggingface", "openai"],
+        index=1,
         help="Choose the model provider you want to use. HuggingFace uses the HuggingFace API, while ollama uses local models through Ollama",
     )
 
@@ -95,12 +101,12 @@ def main():
     elif provider == "huggingface":
         model_id = st.sidebar.text_input(
             "Enter model ID",
-            "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+            "Qwen/Qwen2.5-Coder-32B-Instruct",
             help="The model ID from HuggingFace.",
         )
         api_base = None
         api_key = st.sidebar.text_input(
-            "Enter token", "", help="Your HuggingFace token."
+            "Enter token", None, help="Your HuggingFace token."
         )
     elif provider == "openai":
         model_id = st.sidebar.text_input(
@@ -143,10 +149,13 @@ def main():
                 User input: 
                 {query}
             """
-            response = agentic_rag.run(
-                prompt_template.format(history=st.session_state.messages, query=prompt),
-                stream=False,
-            )
+            with st.spinner("Thinking..."):
+                response = agentic_rag.run(
+                    prompt_template.format(
+                        history=st.session_state.messages, query=prompt
+                    ),
+                    stream=False,
+                )
             st.write(response)
 
         # Add assistant response to chat history

@@ -45,7 +45,7 @@ def init_chroma_vector_store():
 
 class RetrieverTool(Tool):
     name = "retriever"
-    description = "Uses semantic search to retrieve the parts of the transformers documentation stored in a vector database that could be most relevant to answer your query."
+    description = "Uses semantic search to retrieve documents stored in a vector database that could be most relevant to answer your query."
     inputs = {
         "query": {
             "type": "string",
