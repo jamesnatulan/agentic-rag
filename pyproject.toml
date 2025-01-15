@@ -19,4 +19,5 @@ dependencies = [
     "pypdf>=5.1.0",
     "beautifulsoup4>=4.12.3",
     "validators>=0.34.0",
+    "pysqlite3-binary>=0.5.4",
 ]

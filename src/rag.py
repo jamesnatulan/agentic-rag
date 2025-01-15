@@ -11,6 +11,11 @@ from langchain_community.document_loaders import PyPDFLoader
 
 from src.common import load_model
 
+# Workaround for streamlit error on pysqlite3
+import sys
+__import__('pysqlite3')
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+
 
 def init_chroma_vector_store():
     # Create persist directory at project root
