@@ -81,7 +81,7 @@ def main():
     provider = st.sidebar.selectbox(
         "Select model provider",
         ["ollama", "huggingface", "openai"],
-        index=0,
+        index=1,
         help="Choose the model provider you want to use. HuggingFace uses the HuggingFace API, while ollama uses local models through Ollama",
     )
 
@@ -101,12 +101,12 @@ def main():
     elif provider == "huggingface":
         model_id = st.sidebar.text_input(
             "Enter model ID",
-            "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+            "Qwen/Qwen2.5-Coder-32B-Instruct",
             help="The model ID from HuggingFace.",
         )
         api_base = None
         api_key = st.sidebar.text_input(
-            "Enter token", "", help="Your HuggingFace token."
+            "Enter token", None, help="Your HuggingFace token."
         )
     elif provider == "openai":
         model_id = st.sidebar.text_input(
