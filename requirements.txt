@@ -22,9 +22,6 @@ anyio==4.8.0
     #   httpx
     #   openai
     #   starlette
-    #   watchfiles
-asgiref==3.8.1
-    # via opentelemetry-instrumentation-asgi
 attrs==24.3.0
     # via
     #   aiohttp
@@ -32,53 +29,31 @@ attrs==24.3.0
     #   e2b-code-interpreter
     #   jsonschema
     #   referencing
-backoff==2.2.1
-    # via posthog
-bcrypt==4.2.1
-    # via chromadb
 beautifulsoup4==4.12.3
     # via
     #   agentic-rag (pyproject.toml)
     #   markdownify
 blinker==1.9.0
     # via streamlit
-build==1.2.2.post1
-    # via chromadb
 cachetools==5.5.0
-    # via
-    #   google-auth
-    #   streamlit
+    # via streamlit
 certifi==2024.12.14
     # via
     #   httpcore
     #   httpx
-    #   kubernetes
     #   requests
 charset-normalizer==3.4.1
     # via requests
-chroma==0.2.0
-    # via agentic-rag (pyproject.toml)
-chroma-hnswlib==0.7.6
-    # via chromadb
-chromadb==0.5.23
-    # via langchain-chroma
 click==8.1.8
     # via
     #   duckduckgo-search
     #   streamlit
     #   typer
     #   uvicorn
-coloredlogs==15.0.1
-    # via onnxruntime
 dataclasses-json==0.6.7
     # via langchain-community
 datasets==3.2.0
     # via agentic-rag (pyproject.toml)
-deprecated==1.2.15
-    # via
-    #   opentelemetry-api
-    #   opentelemetry-exporter-otlp-proto-grpc
-    #   opentelemetry-semantic-conventions
 dill==0.3.8
     # via
     #   datasets
@@ -87,17 +62,12 @@ distro==1.9.0
     # via openai
 duckduckgo-search==7.2.1
     # via smolagents
-durationpy==0.9
-    # via kubernetes
 e2b==1.0.5
     # via e2b-code-interpreter
 e2b-code-interpreter==1.0.3
     # via smolagents
 fastapi==0.115.6
-    # via
-    #   chromadb
-    #   gradio
-    #   langchain-chroma
+    # via gradio
 ffmpy==0.5.0
     # via gradio
 filelock==3.16.1
@@ -107,8 +77,6 @@ filelock==3.16.1
     #   torch
     #   transformers
     #   triton
-flatbuffers==24.12.23
-    # via onnxruntime
 frozenlist==1.5.0
     # via
     #   aiohttp
@@ -123,10 +91,6 @@ gitdb==4.0.12
     # via gitpython
 gitpython==3.1.44
     # via streamlit
-google-auth==2.37.0
-    # via kubernetes
-googleapis-common-protos==1.66.0
-    # via opentelemetry-exporter-otlp-proto-grpc
 gradio==5.12.0
     # via smolagents
 gradio-client==1.5.4
@@ -135,27 +99,31 @@ greenlet==3.1.1
     # via sqlalchemy
 grpcio==1.69.0
     # via
-    #   chromadb
-    #   opentelemetry-exporter-otlp-proto-grpc
+    #   grpcio-tools
+    #   qdrant-client
+grpcio-tools==1.69.0
+    # via qdrant-client
 h11==0.14.0
     # via
     #   httpcore
     #   uvicorn
+h2==4.1.0
+    # via httpx
+hpack==4.0.0
+    # via h2
 httpcore==1.0.7
     # via
     #   e2b
     #   httpx
-httptools==0.6.4
-    # via uvicorn
 httpx==0.28.1
     # via
-    #   chromadb
     #   e2b
     #   e2b-code-interpreter
     #   gradio
     #   gradio-client
     #   langsmith
     #   openai
+    #   qdrant-client
     #   safehttpx
 httpx-sse==0.4.0
     # via langchain-community
@@ -169,18 +137,14 @@ huggingface-hub==0.27.1
     #   sentence-transformers
     #   tokenizers
     #   transformers
-humanfriendly==10.0
-    # via coloredlogs
+hyperframe==6.0.1
+    # via h2
 idna==3.10
     # via
     #   anyio
     #   httpx
     #   requests
     #   yarl
-importlib-metadata==8.5.0
-    # via opentelemetry-api
-importlib-resources==6.5.2
-    # via chromadb
 inquirerpy==0.3.4
     # via huggingface-hub
 jinja2==3.1.5
@@ -202,24 +166,22 @@ jsonschema==4.23.0
     # via altair
 jsonschema-specifications==2024.10.1
     # via jsonschema
-kubernetes==31.0.0
-    # via chromadb
 langchain==0.3.14
     # via
     #   agentic-rag (pyproject.toml)
     #   langchain-community
-langchain-chroma==0.2.0
-    # via agentic-rag (pyproject.toml)
 langchain-community==0.3.14
     # via agentic-rag (pyproject.toml)
 langchain-core==0.3.29
     # via
     #   langchain
-    #   langchain-chroma
     #   langchain-community
     #   langchain-huggingface
+    #   langchain-qdrant
     #   langchain-text-splitters
 langchain-huggingface==0.1.2
+    # via agentic-rag (pyproject.toml)
+langchain-qdrant==0.2.0
     # via agentic-rag (pyproject.toml)
 langchain-text-splitters==0.3.5
     # via langchain
@@ -242,10 +204,6 @@ marshmallow==3.25.1
     # via dataclasses-json
 mdurl==0.1.2
     # via markdown-it-py
-mmh3==5.0.1
-    # via chromadb
-monotonic==1.6
-    # via posthog
 mpmath==1.3.0
     # via sympy
 multidict==6.1.0
@@ -262,16 +220,13 @@ networkx==3.4.2
     # via torch
 numpy==1.26.4
     # via
-    #   chroma-hnswlib
-    #   chromadb
     #   datasets
     #   gradio
     #   langchain
-    #   langchain-chroma
     #   langchain-community
-    #   onnxruntime
     #   pandas
     #   pydeck
+    #   qdrant-client
     #   scikit-learn
     #   scipy
     #   streamlit
@@ -308,64 +263,15 @@ nvidia-nvjitlink-cu12==12.4.127
     #   torch
 nvidia-nvtx-cu12==12.4.127
     # via torch
-oauthlib==3.2.2
-    # via
-    #   kubernetes
-    #   requests-oauthlib
-onnxruntime==1.20.1
-    # via chromadb
 openai==1.59.7
     # via smolagents
-opentelemetry-api==1.29.0
-    # via
-    #   chromadb
-    #   opentelemetry-exporter-otlp-proto-grpc
-    #   opentelemetry-instrumentation
-    #   opentelemetry-instrumentation-asgi
-    #   opentelemetry-instrumentation-fastapi
-    #   opentelemetry-sdk
-    #   opentelemetry-semantic-conventions
-opentelemetry-exporter-otlp-proto-common==1.29.0
-    # via opentelemetry-exporter-otlp-proto-grpc
-opentelemetry-exporter-otlp-proto-grpc==1.29.0
-    # via chromadb
-opentelemetry-instrumentation==0.50b0
-    # via
-    #   opentelemetry-instrumentation-asgi
-    #   opentelemetry-instrumentation-fastapi
-opentelemetry-instrumentation-asgi==0.50b0
-    # via opentelemetry-instrumentation-fastapi
-opentelemetry-instrumentation-fastapi==0.50b0
-    # via chromadb
-opentelemetry-proto==1.29.0
-    # via
-    #   opentelemetry-exporter-otlp-proto-common
-    #   opentelemetry-exporter-otlp-proto-grpc
-opentelemetry-sdk==1.29.0
-    # via
-    #   chromadb
-    #   opentelemetry-exporter-otlp-proto-grpc
-opentelemetry-semantic-conventions==0.50b0
-    # via
-    #   opentelemetry-instrumentation
-    #   opentelemetry-instrumentation-asgi
-    #   opentelemetry-instrumentation-fastapi
-    #   opentelemetry-sdk
-opentelemetry-util-http==0.50b0
-    # via
-    #   opentelemetry-instrumentation-asgi
-    #   opentelemetry-instrumentation-fastapi
 orjson==3.10.14
     # via
-    #   chromadb
     #   gradio
     #   langsmith
-overrides==7.7.0
-    # via chromadb
 packaging==24.2
     # via
     #   altair
-    #   build
     #   datasets
     #   e2b
     #   gradio
@@ -373,8 +279,6 @@ packaging==24.2
     #   huggingface-hub
     #   langchain-core
     #   marshmallow
-    #   onnxruntime
-    #   opentelemetry-instrumentation
     #   streamlit
     #   transformers
 pandas==2.2.3
@@ -392,8 +296,8 @@ pillow==11.1.0
     #   sentence-transformers
     #   smolagents
     #   streamlit
-posthog==3.8.3
-    # via chromadb
+portalocker==2.10.1
+    # via qdrant-client
 primp==0.10.0
     # via duckduckgo-search
 prompt-toolkit==3.0.48
@@ -405,30 +309,23 @@ propcache==0.2.1
 protobuf==5.29.3
     # via
     #   e2b
-    #   googleapis-common-protos
-    #   onnxruntime
-    #   opentelemetry-proto
+    #   grpcio-tools
     #   streamlit
 pyarrow==18.1.0
     # via
     #   datasets
     #   streamlit
-pyasn1==0.6.1
-    # via
-    #   pyasn1-modules
-    #   rsa
-pyasn1-modules==0.4.1
-    # via google-auth
 pydantic==2.10.5
     # via
-    #   chromadb
     #   fastapi
     #   gradio
     #   langchain
     #   langchain-core
+    #   langchain-qdrant
     #   langsmith
     #   openai
     #   pydantic-settings
+    #   qdrant-client
 pydantic-core==2.27.2
     # via pydantic
 pydantic-settings==2.7.1
@@ -441,39 +338,31 @@ pygments==2.19.1
     # via rich
 pypdf==5.1.0
     # via agentic-rag (pyproject.toml)
-pypika==0.48.9
-    # via chromadb
-pyproject-hooks==1.2.0
-    # via build
-pysqlite3-binary==0.5.4
-    # via agentic-rag (pyproject.toml)
 python-dateutil==2.9.0.post0
     # via
     #   e2b
-    #   kubernetes
     #   pandas
-    #   posthog
 python-dotenv==1.0.1
     # via
     #   pydantic-settings
     #   smolagents
-    #   uvicorn
 python-multipart==0.0.20
     # via gradio
 pytz==2024.2
     # via pandas
 pyyaml==6.0.2
     # via
-    #   chromadb
     #   datasets
     #   gradio
     #   huggingface-hub
-    #   kubernetes
     #   langchain
     #   langchain-community
     #   langchain-core
     #   transformers
-    #   uvicorn
+qdrant-client==1.13.0
+    # via
+    #   agentic-rag (pyproject.toml)
+    #   langchain-qdrant
 referencing==0.35.1
     # via
     #   jsonschema
@@ -484,23 +373,17 @@ requests==2.32.3
     # via
     #   datasets
     #   huggingface-hub
-    #   kubernetes
     #   langchain
     #   langchain-community
     #   langsmith
-    #   posthog
-    #   requests-oauthlib
     #   requests-toolbelt
     #   smolagents
     #   streamlit
     #   transformers
-requests-oauthlib==2.0.0
-    # via kubernetes
 requests-toolbelt==1.0.0
     # via langsmith
 rich==13.9.4
     # via
-    #   chromadb
     #   smolagents
     #   streamlit
     #   typer
@@ -508,8 +391,6 @@ rpds-py==0.22.3
     # via
     #   jsonschema
     #   referencing
-rsa==4.9
-    # via google-auth
 ruff==0.9.1
     # via gradio
 safehttpx==0.1.6
@@ -529,14 +410,14 @@ sentence-transformers==3.3.1
     #   agentic-rag (pyproject.toml)
     #   langchain-huggingface
 setuptools==75.8.0
-    # via torch
+    # via
+    #   grpcio-tools
+    #   torch
 shellingham==1.5.4
     # via typer
 six==1.17.0
     # via
-    #   kubernetes
     #   markdownify
-    #   posthog
     #   python-dateutil
 smmap==5.0.2
     # via gitdb
@@ -559,12 +440,9 @@ starlette==0.41.3
 streamlit==1.41.1
     # via agentic-rag (pyproject.toml)
 sympy==1.13.1
-    # via
-    #   onnxruntime
-    #   torch
+    # via torch
 tenacity==9.0.0
     # via
-    #   chromadb
     #   langchain
     #   langchain-community
     #   langchain-core
@@ -573,7 +451,6 @@ threadpoolctl==3.5.0
     # via scikit-learn
 tokenizers==0.20.3
     # via
-    #   chromadb
     #   langchain-huggingface
     #   transformers
 toml==0.10.2
@@ -586,7 +463,6 @@ tornado==6.4.2
     # via streamlit
 tqdm==4.67.1
     # via
-    #   chromadb
     #   datasets
     #   huggingface-hub
     #   openai
@@ -600,14 +476,11 @@ transformers==4.46.3
 triton==3.1.0
     # via torch
 typer==0.15.1
-    # via
-    #   chromadb
-    #   gradio
+    # via gradio
 typing-extensions==4.12.2
     # via
     #   altair
     #   anyio
-    #   chromadb
     #   e2b
     #   fastapi
     #   gradio
@@ -615,7 +488,6 @@ typing-extensions==4.12.2
     #   huggingface-hub
     #   langchain-core
     #   openai
-    #   opentelemetry-sdk
     #   pydantic
     #   pydantic-core
     #   sqlalchemy
@@ -629,35 +501,17 @@ tzdata==2024.2
     # via pandas
 urllib3==2.3.0
     # via
-    #   kubernetes
+    #   qdrant-client
     #   requests
 uvicorn==0.34.0
-    # via
-    #   chromadb
-    #   gradio
-uvloop==0.21.0
-    # via uvicorn
-validators==0.34.0
-    # via agentic-rag (pyproject.toml)
+    # via gradio
 watchdog==6.0.0
     # via streamlit
-watchfiles==1.0.4
-    # via uvicorn
 wcwidth==0.2.13
     # via prompt-toolkit
-websocket-client==1.8.0
-    # via kubernetes
 websockets==14.1
-    # via
-    #   gradio-client
-    #   uvicorn
-wrapt==1.17.2
-    # via
-    #   deprecated
-    #   opentelemetry-instrumentation
+    # via gradio-client
 xxhash==3.5.0
     # via datasets
 yarl==1.18.3
     # via aiohttp
-zipp==3.21.0
-    # via importlib-metadata

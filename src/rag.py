@@ -1,8 +1,6 @@
-import os
 from smolagents import CodeAgent, Model
 
 from smolagents import Tool
-from langchain_chroma import Chroma
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance, VectorParams
@@ -34,36 +32,6 @@ def init_qdrant_vector_store():
         client=client,
         collection_name="demo_collection",
         embedding=embedding_model,
-    )
-
-    # Text Splitter
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200,
-        add_start_index=True,
-        strip_whitespace=True,
-        separators=["\n\n", "\n", ".", " ", ""],
-    )
-
-    return vector_store, text_splitter
-
-def init_chroma_vector_store():
-    # Create persist directory at project root
-    dir = ".db"
-    os.makedirs(dir, exist_ok=True)
-
-    # Initialize embedding model
-    emb_model = "sentence-transformers/all-mpnet-base-v2"
-    model_kwargs = {"device": "cuda", "trust_remote_code": True}
-    encode_kwargs = {"normalize_embeddings": True}
-    embedding_model = HuggingFaceEmbeddings(
-        model_name=emb_model, model_kwargs=model_kwargs, encode_kwargs=encode_kwargs
-    )
-    # Initialize the vector store
-    vector_store = Chroma(
-        collection_name="rag_vector_store",
-        embedding_function=embedding_model,
-        persist_directory=".db",
     )
 
     # Text Splitter
@@ -115,7 +83,7 @@ class RetrieverTool(Tool):
 
 def init_rag_agent(model: Model):
     # Initialize the vector store
-    vector_store, _ = init_chroma_vector_store()
+    vector_store, _ = init_qdrant_vector_store()
 
     # Initialize the retriever tool and Agent
     retriever_tool = RetrieverTool(vector_store)
