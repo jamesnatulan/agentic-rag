@@ -1,3 +1,4 @@
+import torch
 from smolagents import CodeAgent, Model
 
 from smolagents import Tool
@@ -15,10 +16,11 @@ from src.common import load_model
 def init_qdrant_vector_store():
     # Use in memory store
     client = QdrantClient(":memory:")  # Qdrant is running from RAM.
+    device = "cuda" if torch.cuda.is_available() else "cpu"
 
     # Initialize embedding model
     emb_model = "sentence-transformers/all-mpnet-base-v2"
-    model_kwargs = {"device": "cuda", "trust_remote_code": True}
+    model_kwargs = {"device": device, "trust_remote_code": True}
     encode_kwargs = {"normalize_embeddings": True}
     embedding_model = HuggingFaceEmbeddings(
         model_name=emb_model, model_kwargs=model_kwargs, encode_kwargs=encode_kwargs
