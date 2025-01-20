@@ -73,6 +73,9 @@ def init_multiagent_rag(provider=None, model_id=None, api_key=None, api_base=Non
 
     return manager_agent
 
+def reset_conversation(): 
+    st.session_state.messages = []
+
 
 def main():
     # Start streamlit app
@@ -193,6 +196,12 @@ def main():
     
     else:
         raise ValueError(f"Invalid document type: {doc_type}")
+    
+    st.sidebar.divider()
+
+    # Chat
+    st.sidebar.header("Chat")
+    st.sidebar.button('Reset Chat', on_click=reset_conversation)
 
     # Initialize chat history
     if "messages" not in st.session_state:
