@@ -8,7 +8,7 @@ def main():
     dataset = datasets.load_dataset(dataset, split="train")
     
     # Take random 2000 rows from the dataset
-    dataset = dataset.shuffle(seed=42).select(list(range(2000)))
+    dataset = dataset.shuffle(seed=42).select(list(range(200)))
     dataset.push_to_hub("jamesnatulan/small_wiki_medical_terms")
 
 
