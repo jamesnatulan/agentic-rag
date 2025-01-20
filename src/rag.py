@@ -3,6 +3,9 @@ from smolagents import CodeAgent, Model
 
 from smolagents import Tool
 from langchain_chroma import Chroma
+from langchain_qdrant import QdrantVectorStore
+from qdrant_client import QdrantClient
+from qdrant_client.http.models import Distance, VectorParams
 from langchain_huggingface import HuggingFaceEmbeddings
 import datasets
 from langchain.docstore.document import Document
@@ -11,11 +14,38 @@ from langchain_community.document_loaders import PyPDFLoader
 
 from src.common import load_model
 
-# Workaround for streamlit error on pysqlite3
-import sys
-__import__('pysqlite3')
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+def init_qdrant_vector_store():
+    # Use in memory store
+    client = QdrantClient(":memory:")  # Qdrant is running from RAM.
 
+    # Initialize embedding model
+    emb_model = "sentence-transformers/all-mpnet-base-v2"
+    model_kwargs = {"device": "cuda", "trust_remote_code": True}
+    encode_kwargs = {"normalize_embeddings": True}
+    embedding_model = HuggingFaceEmbeddings(
+        model_name=emb_model, model_kwargs=model_kwargs, encode_kwargs=encode_kwargs
+    )
+    client.create_collection(
+        collection_name="demo_collection",
+        vectors_config=VectorParams(size=768, distance=Distance.COSINE),
+    )
+
+    vector_store = QdrantVectorStore(
+        client=client,
+        collection_name="demo_collection",
+        embedding=embedding_model,
+    )
+
+    # Text Splitter
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1000,
+        chunk_overlap=200,
+        add_start_index=True,
+        strip_whitespace=True,
+        separators=["\n\n", "\n", ".", " ", ""],
+    )
+
+    return vector_store, text_splitter
 
 def init_chroma_vector_store():
     # Create persist directory at project root
@@ -59,7 +89,7 @@ class RetrieverTool(Tool):
     }
     output_type = "string"
 
-    def __init__(self, vector_store: Chroma, **kwargs):
+    def __init__(self, vector_store: QdrantVectorStore, **kwargs):
         super().__init__(**kwargs)
         self.retriever = vector_store.as_retriever(
             search_type="similarity",

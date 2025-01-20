@@ -1,6 +1,6 @@
 from src.rag import (
     init_rag_agent,
-    init_chroma_vector_store,
+    init_qdrant_vector_store,
     load_pdf,
     load_dataset,
 )
@@ -9,9 +9,9 @@ from src.common import load_model
 
 
 @st.cache_resource
-def st_init_chroma_vector_store():
+def st_init_vector_store():
     # Load the vector store
-    vector_store, splitter = init_chroma_vector_store()
+    vector_store, splitter = init_qdrant_vector_store()
     return vector_store, splitter
 
 
@@ -34,7 +34,7 @@ def main():
     st.title("Agentic RAG Demo")
 
     # Initialize the vector store
-    vector_store, splitter = st_init_chroma_vector_store()
+    vector_store, splitter = st_init_vector_store()
 
     # Documents here
     st.sidebar.header("Documents")

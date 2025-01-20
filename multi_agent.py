@@ -2,8 +2,7 @@ from smolagents import CodeAgent, ManagedAgent
 
 from src.rag import (
     init_rag_agent,
-    init_chroma_vector_store,
-    load_pdf,
+    init_qdrant_vector_store,
     load_dataset,
 )
 from src.web_search import init_web_search_agent
@@ -13,9 +12,9 @@ from src.common import load_model
 
 
 @st.cache_resource
-def st_init_chroma_vector_store():
+def st_init_vector_store():
     # Load the vector store
-    vector_store, splitter = init_chroma_vector_store()
+    vector_store, splitter = init_qdrant_vector_store()
     return vector_store, splitter
 
 
@@ -67,29 +66,24 @@ def main():
     st.title("Multi Agent RAG Demo")
 
     # Initialize the vector store
-    vector_store, splitter = st_init_chroma_vector_store()
+    vector_store, splitter = st_init_vector_store()
 
     # Documents here
     st.sidebar.header("Documents")
-    uploaded_files = st.sidebar.file_uploader(
-        "Upload PDF", type=["pdf"], accept_multiple_files=True
-    )
-    if len(uploaded_files) > 0:
-        docs = load_pdf(uploaded_files, splitter)
-        progress_text = "Loading PDF into vector store..."
-        progress_bar = st.sidebar.progress(0, text=progress_text)
 
-        for i, doc in enumerate(docs):
-            vector_store.add_documents([doc])
-            progress_bar.progress(i / len(docs))
-        progress_bar.empty()
-        st.sidebar.success("PDFs loaded successfully.")
-
+    # Load huggingface dataset as Documents
     dataset = st.sidebar.text_input(
-        "Enter dataset name", "jamesnatulan/transformers-docs"
+        "Enter dataset name",
+        "jamesnatulan/small_wiki_medical_terms",
+        help="THe repo ID of the huggingface dataset you want to use.",
+    )
+    content_field = st.sidebar.text_input(
+        "Enter content field",
+        "page_text",
+        help="The field in the dataset that contains the text.",
     )
     if st.sidebar.button("Load dataset"):
-        docs = load_dataset(dataset, splitter)
+        docs = load_dataset(dataset, splitter, content_field)
         progress_text = "Loading dataset into vector store..."
         progress_bar = st.sidebar.progress(0, text=progress_text)
 
@@ -99,12 +93,12 @@ def main():
         progress_bar.empty()
         st.sidebar.success("Dataset loaded successfully.")
 
-    # Initialize the Agentic-RAG agent
+# Initialize the Agentic-RAG agent
     st.sidebar.header("LLM Model Configuration")
     provider = st.sidebar.selectbox(
         "Select model provider",
-        ["huggingface", "ollama", "openai"],
-        index=0,
+        ["ollama", "huggingface", "openai"],
+        index=1,
         help="Choose the model provider you want to use. HuggingFace uses the HuggingFace API, while ollama uses local models through Ollama",
     )
 
@@ -124,12 +118,12 @@ def main():
     elif provider == "huggingface":
         model_id = st.sidebar.text_input(
             "Enter model ID",
-            "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+            "Qwen/Qwen2.5-Coder-32B-Instruct",
             help="The model ID from HuggingFace.",
         )
         api_base = None
         api_key = st.sidebar.text_input(
-            "Enter token", "", help="Your HuggingFace token."
+            "Enter token", None, help="Your HuggingFace token."
         )
     elif provider == "openai":
         model_id = st.sidebar.text_input(
